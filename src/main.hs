@@ -1,5 +1,5 @@
 -- Fractal Generator made by Kyotem
--- Last Edit: 04/09/2025
+-- Last Edit: 07/09/2025
 
 -- Signature works like: Param1 -> Param2 -> Return type
 escapesToInf :: Float -> Float -> Int -> Bool
@@ -46,6 +46,17 @@ fillArray array[] arraySize
     | otherwise fillArray (array[arraySize % arraySize + 1]) (arraySize -1)
 
 
+
+
+
+{- 
+!!! Haskell has native support for complex numbers !!!
+https://hackage.haskell.org/package/base-4.21.0.0/docs/Data-Complex.html
+Can make your calculations MUCH more readable without needing to convert to plain arithm.
+
+Definitely implement down the line
+
+-}
 
 
 main :: IO ()
