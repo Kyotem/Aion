@@ -26,4 +26,4 @@ convertToStar x
 
 printMatrix :: [[Int]] -> IO ()
 -- Working with monads here? Do some more digging here: https://hoogle.haskell.org/?hoogle=mapM_, need to understand how the function works properly.
-printMatrix = mapM_ (putStrLn . map convert)
+printMatrix = mapM_ (putStrLn . map convertToStar)
