@@ -107,8 +107,6 @@ genC w h x_min x_max y_min y_max px py =
 
 
 
-
-
 -- Temp, convert later to something that returns 1 or 0 when escaped, or a scale value for it (e.g., 1 - 100 to measure how far it has escaped -> Maybe down the line as diff func)
 testfunc z
     | magnitude z > 2 = "Escaped: " ++ show (magnitude z)
