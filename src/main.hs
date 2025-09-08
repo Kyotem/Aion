@@ -1,5 +1,15 @@
 -- Fractal Generator made by Kyotem
--- Last Edit: 07/09/2025
+-- Last Edit: 08/09/2025
+
+
+{- 
+!!! Haskell has native support for complex numbers !!!
+https://hackage.haskell.org/package/base-4.21.0.0/docs/Data-Complex.html
+Can make your calculations MUCH more readable without needing to convert to plain arithm.
+-}
+-- Required to import functions next to the namespace import / (Module)
+import Data.Complex (Complex((:+)), realPart, imagPart)
+
 
 -- Signature works like: Param1 -> Param2 -> Return type
 escapesToInf :: Float -> Float -> Int -> Bool
@@ -41,26 +51,54 @@ escapesToInf n c d -- C1: Recursion
 --     | otherwise = data[] = grid (escapesToInf grid[s] 0.1 500)
 
 
-fillArray array[] arraySize
-    | arraySize < 0 = array[]
-    | otherwise fillArray (array[arraySize % arraySize + 1]) (arraySize -1)
+-- fillArray array[] arraySize
+--     | arraySize < 0 = array[]
+--     | otherwise fillArray (array[arraySize % arraySize + 1]) (arraySize -1)
+
+
+{-
+
+genC w h x_min x_max y_min y_max px py =
+
+    dx = (x_max - x_min) / (w-1)
+    dy = (y_max -y_min) / (h-1)
+
+    c_r = x_min + (px * dx)
+    c_i = y_max - (py * dy)
+
+    c = c_r :+ c_i
+
+---
+
+genC w h x_min x_max y_min y_max px py =
+    x_min + (px * ((x_max - x_min) / (w-1))) :+ y_max - (py * ((y_max -y_min) / (h-1)))
+
+w = Image width (Pixels)
+h = Image height (Pixels)
+
+x_min, x_max (Bounds of x-axis to map to)
+y_min, y_max (Bounds of y-axis to map to)
+
+px py = selected pixel to map c to.
+
+ -}
 
 
 
 
-
-{- 
-!!! Haskell has native support for complex numbers !!!
-https://hackage.haskell.org/package/base-4.21.0.0/docs/Data-Complex.html
-Can make your calculations MUCH more readable without needing to convert to plain arithm.
-
-Definitely implement down the line
-
--}
+genC :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> Int -> Complex Double
+genC w h x_min x_max y_min y_max px py =
+    (x_min + fromIntegral px * ((x_max - x_min) / fromIntegral (w - 1)))
+    :+ (y_max - fromIntegral py * ((y_max - y_min) / fromIntegral (h - 1)))
+-- Using fromIntegral for conversion: https://wiki.haskell.org/Converting_numbers
+-- Resolve issues when inputting the parameters (Negative numbers can be seen as numeric litearls whilst it is expecting a double)
+-- TODO: Improve type signature & calculations (Somewhere later)
 
 
 main :: IO ()
 main = do
-    print(escapesToInf 0.2 0.2 500)
-    emptyArray = Int[]
-    print( )
+    let x = genC 200 200 (-2) 1 (-1.5) 1.5 200 200
+    putStrLn $ "Real part: " ++ show (realPart x)
+    putStrLn $ "Imag part: " ++ show (imagPart x)
+    -- https://hackage.haskell.org/package/base-4.21.0.0/docs/Text-Show.html
+    -- Can convert a function to return it as a String to begin with. Maybe for rendering down the line? Ehh for now Text.Show is fine.
