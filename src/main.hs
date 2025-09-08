@@ -36,7 +36,8 @@ escapesToInf n c d -- C1: Recursion
 -- Generate the grid of escape values
 generateGrid :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
 generateGrid w h x_min x_max y_min y_max maxIter f = 
-    [ [ f (genC w h x_min x_max y_min y_max px py) (genC w h x_min x_max y_min y_max px py) maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
+    [ [ f (genC w h x_min x_max y_min y_max px py) 0  maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
+    
 
 {-
     f == Mandlebrot.hasEscaped (Can later be converted to map to a specific range)
