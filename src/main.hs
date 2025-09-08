@@ -1,5 +1,7 @@
 -- Fractal Generator made by Kyotem
 -- Last Edit: 2025-09-08
+module Main where
+
 import Mandlebrot
 import Renderer
 
@@ -39,6 +41,16 @@ generateGrid w h x_min x_max y_min y_max maxIter f =
     [ [ f (genC w h x_min x_max y_min y_max px py) 0  maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
     
 
+cJulia :: Complex Double
+cJulia = (-0.7) :+ 0.27015
+
+-- FIXME: Function to generate Julia set grid (Duplicate code, please refactor!!)
+generateJulia :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
+generateJulia w h x_min x_max y_min y_max maxIter f =
+    [ [ f cJulia (genC w h x_min x_max y_min y_max px py) maxIter
+        | px <- [0..w-1] ]
+      | py <- [0..h-1] ]
+
 {-
     f == Mandlebrot.hasEscaped (Can later be converted to map to a specific range)
     - https://wiki.haskell.org/List_comprehension
@@ -55,16 +67,16 @@ generateGrid w h x_min x_max y_min y_max maxIter f =
 
 main :: IO ()
 main = do
-    let w = 600    -- Width of the grid (number of pixels)
-        h = 400    -- Height of the grid (number of pixels)
-        x_min = -2.0
-        x_max = 1.0
+    let w = 1000    -- Width of the grid (number of pixels)
+        h = 1000    -- Height of the grid (number of pixels)
+        x_min = -1.5
+        x_max =  1.5
         y_min = -1.5
-        y_max = 1.5
+        y_max =  1.5    
         maxIter = 1000 -- Maximum number of iterations
 
     -- Generate the Mandelbrot set grid
-    let grid = generateGrid w h x_min x_max y_min y_max maxIter hasEscaped
+    let grid = generateJulia w h x_min x_max y_min y_max maxIter hasEscaped
 
     -- Print the grid
     printMatrix grid

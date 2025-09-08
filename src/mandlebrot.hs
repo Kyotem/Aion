@@ -3,12 +3,15 @@
 module Mandlebrot (hasEscaped, calcDelta, genC) where
 import Data.Complex (Complex((:+)), magnitude)
 
--- Function to check if the point has escaped or not (Mandlebrot)
+-- Function to check if the point has escaped or not (Mandlebrot or Julia)
+-- TODO: Convert to escape-time or escape-iteration checker so we can map values over a range
 hasEscaped :: Complex Double -> Complex Double -> Int -> Int
 hasEscaped c z maxIter
     | magnitude z > 2 = 1  -- Escape condition
     | maxIter == 0 = 0     -- If we reach max iterations, assume it hasn't escaped
     | otherwise = hasEscaped c (z*z + c) (maxIter - 1)  -- TODO: I feel like this isn't calculating per the equations i built before, please cross-ref!!!
+
+
 
 calcDelta :: Int -> Double -> Double -> Double
 calcDelta u n_min n_max = (n_max - n_min) / fromIntegral (u - 1)
