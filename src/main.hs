@@ -91,6 +91,7 @@ genZ n c d -- C1: Recursion
     | otherwise = escapesToInf (n*n + c) c (d-1) -- Recursive iteration to check whether or not n(z_n) escapes into infinity
 
 
+-- ! Is there any use in x_min/max etc here if I'm going to scan over a grid regardless? (The generated grid would define steps, etc)
 genC :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> Int -> Complex Double
 genC w h x_min x_max y_min y_max px py =
     (x_min + fromIntegral px * ((x_max - x_min) / fromIntegral (w - 1)))
@@ -106,11 +107,11 @@ testfunc z
 
 main :: IO ()
 main = do
-    let x = genC 200 200 (-2) 1 (-1.5) 1.5 100 200
+    let x = genC 200 200 (-2) 1 (-1.5) 1.5 130 150
     putStrLn $ "(c) Real part: " ++ show (realPart x)
     putStrLn $ "(c) Imag part: " ++ show (imagPart x)
     putStrLn $ "(c) Magnitude: " ++ show (magnitude x)
     -- https://hackage.haskell.org/package/base-4.21.0.0/docs/Text-Show.html
     -- Can convert a function to return it as a String to begin with. Maybe for rendering down the line? Ehh for now Text.Show is fine.
-    let y = genZ 0 x 500
+    let y = genZ 0 x 1000
     putStrLn $ testfunc y
