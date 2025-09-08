@@ -10,7 +10,8 @@ TODO:
 TODO
 
 ## How to compile
-TODO
+`cabal build` to build the executable
+`cabal haddock` to generate documentation
 
 
 ## Authors
