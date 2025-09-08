@@ -1,6 +1,7 @@
 -- Fractal Generator made by Kyotem
--- Last Edit: 08/09/2025
-
+-- Last Edit: 2025-09-08
+import Mandlebrot
+import Renderer
 
 {- 
 !!! Haskell has native support for complex numbers !!!
@@ -26,99 +27,43 @@ escapesToInf n c d -- C1: Recursion
 -- Recommended depth is around d=500 to check for infinity-escape (.. Source? Read it somewhere... TODO: Cite source)
 
 
--- grid = grid, z = z_0, c = c, t = type
+-- -- Created separate func, check if z > 2 in separate section
+-- genZ :: Complex Double -> Complex Double -> Int -> Complex Double
+-- genZ n c d -- C1: Recursion
+--     | d < 0 = n -- Base Case
+--     | otherwise = escapesToInf (n*n + c) c (d-1) -- Recursive iteration to check whether or not n(z_n) escapes into infinity
 
--- calcGrid grid[] z c t
-
-
--- calcGrid grid[] z c t
---     | t == 1 = test z c 500 -- Julia X (TODO: Implement)
---     | t == 2 = test z c 500 -- Mandebrot?
-
--- Base case: Grid has been fully computed
- 
- {-
- 
- calcGrid grid[] s
-
-    | check if all items gone through (Maybe do a lazy call with pre-set length and optimize from there?)
-    | if not complete, calculate next one and save value in new arraygrid
-
- -}
-
---  calcGrid grid[] arraySize stepSize data[]
---     | arraySize < 0 = data[]
---     | otherwise = data[] = grid (escapesToInf grid[s] 0.1 500)
-
-
--- fillArray array[] arraySize
---     | arraySize < 0 = array[]
---     | otherwise fillArray (array[arraySize % arraySize + 1]) (arraySize -1)
-
+-- Generate the grid of escape values
+generateGrid :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
+generateGrid w h x_min x_max y_min y_max maxIter f = 
+    [ [ f (genC w h x_min x_max y_min y_max px py) (genC w h x_min x_max y_min y_max px py) maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
 
 {-
+    f == Mandlebrot.hasEscaped (Can later be converted to map to a specific range)
+    - https://wiki.haskell.org/List_comprehension
+    - https://www.youtube.com/watch?v=dYKQSWtJv-w
 
-genC w h x_min x_max y_min y_max px py =
+    px <- [0..w-1] (Inner list)
+    py <- [0..h-1] (Outer list)
 
-    dx = (x_max - x_min) / (w-1)
-    dy = (y_max -y_min) / (h-1)
-
-    c_r = x_min + (px * dx)
-    c_i = y_max - (py * dy)
-
-    c = c_r :+ c_i
-
----
-
-genC w h x_min x_max y_min y_max px py =
-    x_min + (px * ((x_max - x_min) / (w-1))) :+ y_max - (py * ((y_max -y_min) / (h-1)))
-
-w = Image width (Pixels)
-h = Image height (Pixels)
-
-x_min, x_max (Bounds of x-axis to map to)
-y_min, y_max (Bounds of y-axis to map to)
-
-px py = selected pixel to map c to.
-
- -}
-
-
--- Created separate func, check if z > 2 in separate section
-genZ :: Complex Double -> Complex Double -> Int -> Complex Double
-genZ n c d -- C1: Recursion
-    | d < 0 = n -- Base Case
-    | otherwise = escapesToInf (n*n + c) c (d-1) -- Recursive iteration to check whether or not n(z_n) escapes into infinity
-
-calcDelta :: Int -> Double -> Double -> Double
-calcDelta u n_min n_max = (n_max - n_min) / fromIntegral (u - 1)
-
--- ! Is there any use in x_min/max etc here if I'm going to scan over a grid regardless? (The generated grid would define steps, etc)
-genC :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> Int -> Complex Double
-genC w h x_min x_max y_min y_max px py =
-    (x_min + fromIntegral px * calcDelta w x_min x_max)
-    :+ (y_max - fromIntegral py * calcDelta h y_min y_max)
--- Using fromIntegral for conversion: https://wiki.haskell.org/Converting_numbers
--- Resolve issues when inputting the parameters (Negative numbers can be seen as numeric litearls whilst it is expecting a double)
--- TODO: Improve type signature & calculations (Somewhere later)
-
-
-
-
-
-
--- Temp, convert later to something that returns 1 or 0 when escaped, or a scale value for it (e.g., 1 - 100 to measure how far it has escaped -> Maybe down the line as diff func)
-testfunc z
-    | magnitude z > 2 = "Escaped: " ++ show (magnitude z)
-    | otherwise = "Within bounds: " ++ show (magnitude z)
+    0..w-1 = the range (Start at 0 until w - 1)
+    
+    Left side expression uses the function and generates the value to put INTO the list at that position
+    Left side expression uses px and py generated on the right side of the expression in the list comprehension
+-}
 
 main :: IO ()
 main = do
-    let x = genC 200 200 (-2) 1 (-1.5) 1.5 130 150
-    putStrLn $ "(c) Real part: " ++ show (realPart x)
-    putStrLn $ "(c) Imag part: " ++ show (imagPart x)
-    putStrLn $ "(c) Magnitude: " ++ show (magnitude x)
-    -- https://hackage.haskell.org/package/base-4.21.0.0/docs/Text-Show.html
-    -- Can convert a function to return it as a String to begin with. Maybe for rendering down the line? Ehh for now Text.Show is fine.
-    let y = genZ 0 x 1000
-    putStrLn $ testfunc y
+    let w = 600    -- Width of the grid (number of pixels)
+        h = 400    -- Height of the grid (number of pixels)
+        x_min = -2.0
+        x_max = 1.0
+        y_min = -1.5
+        y_max = 1.5
+        maxIter = 1000 -- Maximum number of iterations
+
+    -- Generate the Mandelbrot set grid
+    let grid = generateGrid w h x_min x_max y_min y_max maxIter hasEscaped
+
+    -- Print the grid
+    printMatrix grid

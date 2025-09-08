@@ -1,5 +1,7 @@
 -- Fractal Generator (Renderer Module) made by Kyotem
--- Last Edit: 08/09/2025
+-- Last Edit: 2025-09-08
+
+module Renderer (convert, printMatrix) where
 
 -- TODO: (for v2) adjust so it can print values from 0 to 1 (float/double) value to measure how far it escaped
 
@@ -13,9 +15,3 @@ convert x
 printMatrix :: [[Int]] -> IO ()
 -- Working with monads here? Do some more digging here: https://hoogle.haskell.org/?hoogle=mapM_, need to understand how the function works properly.
 printMatrix = mapM_ (putStrLn . map convert)
-
--- Example render
-main :: IO ()
-main = do
-    let matrix = [[1, 1, 0, 1, 1, 0, 1, 1],[1, 1, 0, 1, 1, 0, 1, 1],[1, 1, 0, 1, 1, 0, 1, 1],[1, 1, 0, 1, 1, 0, 1, 1],[0, 1, 1, 1, 1, 1, 1, 0],[1, 0, 0, 0, 0, 0, 0, 1],[1, 1, 1, 1, 1, 1, 1, 1]]
-    printMatrix matrix
