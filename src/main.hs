@@ -90,15 +90,24 @@ genZ n c d -- C1: Recursion
     | d < 0 = n -- Base Case
     | otherwise = escapesToInf (n*n + c) c (d-1) -- Recursive iteration to check whether or not n(z_n) escapes into infinity
 
+calcDelta :: Int -> Double -> Double -> Double
+calcDelta u n_min n_max = (n_max - n_min) / fromIntegral (u - 1)
 
 -- ! Is there any use in x_min/max etc here if I'm going to scan over a grid regardless? (The generated grid would define steps, etc)
 genC :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> Int -> Complex Double
 genC w h x_min x_max y_min y_max px py =
-    (x_min + fromIntegral px * ((x_max - x_min) / fromIntegral (w - 1)))
-    :+ (y_max - fromIntegral py * ((y_max - y_min) / fromIntegral (h - 1)))
+    (x_min + fromIntegral px * calcDelta w x_min x_max)
+    :+ (y_max - fromIntegral py * calcDelta h y_min y_max)
 -- Using fromIntegral for conversion: https://wiki.haskell.org/Converting_numbers
 -- Resolve issues when inputting the parameters (Negative numbers can be seen as numeric litearls whilst it is expecting a double)
 -- TODO: Improve type signature & calculations (Somewhere later)
+
+
+
+
+
+
+
 
 -- Temp, convert later to something that returns 1 or 0 when escaped, or a scale value for it (e.g., 1 - 100 to measure how far it has escaped -> Maybe down the line as diff func)
 testfunc z
