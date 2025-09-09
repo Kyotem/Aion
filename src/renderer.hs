@@ -11,7 +11,7 @@ This module will be adjusted in a later version to implement different kind of r
 function convertToStar will change in the upcoming version.
 
 -}
-module Renderer (convertToStar, printMatrix) where
+module Renderer (convertToStar, printMatrix, writeMatrixToFile) where
 
 -- TODO: (for v2) adjust so it can print values from 0 to 1 (float/double) value to measure how far it escaped
 -- Or something like 0 - 255 to measure the LPP (Light-Per-Pixel) and map out white to black image
@@ -20,10 +20,17 @@ module Renderer (convertToStar, printMatrix) where
 -- ! Keep in mind that this will have to be adjusted to support a larger range whenever that's implemented
 convertToStar :: Int -> Char
 convertToStar x  
-    | x == 0 = '*'
-    | x == 1 = '-'
+    | x == 0 = '@'
+    | x == 1 = '.'
     | otherwise = '?'  -- non-mapped values
 
 printMatrix :: [[Int]] -> IO ()
 -- Working with monads here? Do some more digging here: https://hoogle.haskell.org/?hoogle=mapM_, need to understand how the function works properly.
 printMatrix = mapM_ (putStrLn . map convertToStar)
+
+-- Separate to different module?
+-- Function to write the matrix to a file
+writeMatrixToFile :: FilePath -> [[Int]] -> IO ()
+writeMatrixToFile filePath matrix = do
+    let matrixStr = unlines [ map convertToStar row | row <- matrix ]
+    writeFile filePath matrixStr
