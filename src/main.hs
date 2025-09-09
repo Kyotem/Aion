@@ -1,89 +1,93 @@
--- Fractal Generator made by Kyotem
--- Last Edit: 2025-09-08
 module Main where
 
 import System.IO (hFlush, stdout)
+import Fractals (generateMandelbrot, generateJulia, hasEscaped)
+import Renderer (writeMatrixToFile, printMatrix)
+import Data.Complex (Complex((:+)))
 
-import Fractals(generateMandelbrot, hasEscaped)
-import Renderer
+-- Get user-input(Prompt: x)
+-- a = the type to convert the String to when using read. (e.g., prompt "Enter int: " :: IO Int)
+-- ! Look a bit more into this! (Applying typeclass constraint, Polymorphism AND Monads), easy to use in this case, documentation might need a deeper dive for other applications / optimizations
+prompt :: Read a => String -> IO a
+prompt msg = do
+    -- Main message
+    putStr msg
+    putStr " "
+    -- Flush buffer so I can show the prompt msg on the same line as the input
+    hFlush stdout
+    -- Get input from user
+    line <- getLine
 
-{-
-IO:
-
-Step 1:
-Ask for Julia or Mandelbrot selection
-
-Step 2:
-Ask for image width
-Ask for image height
-Ask for x_min
-Ask for x_max
-Ask for y_min
-Ask for y_max
-
-Step 3:
-    If Julia:
-    Ask for complex z (for Julia)
-
-    If Mandelbrot:
-    Ask for complex c (px, py)
-
-Step 4:
-Ask for rendering type
-
-Step 5:
-Ask for 'precision' (hasEscaped, is it 0 to 1, or 0 to 255, etc)
-
-Step 6:
-Perform calculations & Renders
-
-Step 7:
-Exit code
-
--}
+    -- C2: Pattern Matching (Top to bottom)
+    case reads line of -- Try parse 'line' into value of 'a' (Read instance)
+        [(val, "")] -> return val -- If parse = OK, 'val' = parsed value
+                                  -- 
+        _ -> do -- If parse = NOT OK, _ == wildcard (*)
+            putStrLn "Invalid input, please try again."
+            prompt msg -- Recursive call to retry (Can this be optimized? Let's not get it wrong too many times!)
 
 
--- step1 :: IO ()
--- step1 = do
---     putStrLn "Welcome to my beautiful Fractal Generator"
---     putStrLn "Please choose which set you want to generate"
---     putStrLn "1 -> Mandelbrot set"
---     putStrLn "2 -> Julia set"
---     putStr "Enter your choice: "
+-- Prompt until we get 0 or 1
+promptFractalChoice :: IO Int
+promptFractalChoice = do
 
--- step2 :: IO ()
--- step2 = do
---     putStrLn "Newchoice:"
---     c <- getLine
---     putStrLn("c: " ++ c)
+    putStrLn "Select which set to generate:"
+    putStrLn "0 -> Mandelbrot"
+    putStrLn "1 -> Julia"
 
+    choice <- prompt "Enter your choice:" :: IO Int
 
--- main :: IO ()
--- main = do
---     -- displayChoices
---     putStr "Enter your choice: "
---     hFlush stdout -- This is so dumb. I have to flush ze buffer because..? I'm sure there is a better way, oh well!
---     t <- getLine
---     putStrLn("t: " ++ t)
---     step2
---     putStrLn("c: " ++ c)
+    -- Using infix for readability, would normally be elem choice [0,1]
+    -- Using elem infix: 'returns True if the list contains an item equal to the first argument'
+    -- https://zvon.org/other/haskell/Outputprelude/elem_f.html
+    if choice `elem` [0,1]
+        then return choice -- If matches, return the selected choice
+        else do            -- Else re-prompt
+            putStrLn "Invalid choice, please enter 0 or 1."
+            promptFractalChoice
 
+mainLoop :: IO ()
+mainLoop = do
+    putStrLn "Welcome to my epic Fractal Generator!"
+    choice <- promptFractalChoice
 
--- TODO: Add user input to decide what to do
+    -- Grid parameters
+    w       <- prompt "Enter width:"      :: IO Int
+    h       <- prompt "Enter height:"     :: IO Int
+    x_min   <- prompt "Enter x_min:"      :: IO Double
+    x_max   <- prompt "Enter x_max:"      :: IO Double
+    y_min   <- prompt "Enter y_min:"      :: IO Double
+    y_max   <- prompt "Enter y_max:"      :: IO Double
+    maxIter <- prompt "Enter maximum iterations:" :: IO Int
+
+    -- C2: Pattern Matching
+    grid <- case choice of
+        0 -> do
+            -- Mandelbrot
+            return $ generateMandelbrot w h x_min x_max y_min y_max maxIter hasEscaped
+        1 -> do
+            -- Julia (ask for c)
+            realPart <- prompt "Enter real part of c:" :: IO Double
+            imagPart <- prompt "Enter imaginary part of c:" :: IO Double
+            let cJulia = realPart :+ imagPart
+            return $ generateJulia cJulia w h x_min x_max y_min y_max maxIter hasEscaped
+        _ -> error "This should never happen... good job!"
+
+    -- TODO: Add choices for different render methods
+
+    -- Render result
+    printMatrix grid
+
+    -- Continue?
+    putStrLn ""
+    putStrLn "What do you want to do next?"
+    putStrLn "0 -> Exit"
+    putStrLn "1 -> Generate another fractal"
+    next <- prompt "Enter your choice:" :: IO Int
+    if next == 1
+        then mainLoop   -- recursion (restart menu) -> Not really efficient if you want to render lots of diff ones.... right?
+        else putStrLn "Goodbye!"
+
+-- entry
 main :: IO ()
-main = do
-    let w = 4000    -- Width of the grid (number of pixels)
-        h = 4000   -- Height of the grid (number of pixels)
-        x_min = -2.0 -- x to map the grid to
-        x_max =  1.0
-        y_min = -1.5 -- y to map the grid to
-        y_max =  1.5    
-        maxIter = 1000 -- Maximum number of iterations
-
-    -- Generate the Mandelbrot set grid
-    let grid = generateMandelbrot w h x_min x_max y_min y_max maxIter hasEscaped
-
-    -- printMatrix grid
-    writeMatrixToFile "C:/Users/finnp/Downloads/test.txt" grid
-
-    putStrLn "done"
+main = mainLoop

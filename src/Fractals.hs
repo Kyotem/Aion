@@ -43,13 +43,10 @@ generateMandelbrot w h x_min x_max y_min y_max maxIter f =
     [ [ f (genComplex w h x_min x_max y_min y_max px py) 0  maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
     
 
-cJulia :: Complex Double
-cJulia = (-0.7) :+ 0.27015
-
 -- FIXME: Function to generate Julia set grid (Duplicate code, please refactor!!)
-generateJulia :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
-generateJulia w h x_min x_max y_min y_max maxIter f =
-    [ [ f cJulia (genComplex w h x_min x_max y_min y_max px py) maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
+generateJulia :: Complex Double -> Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
+generateJulia c w h x_min x_max y_min y_max maxIter f =
+    [ [ f c (genComplex w h x_min x_max y_min y_max px py) maxIter | px <- [0..w-1] ] | py <- [0..h-1] ]
 {-
     f == Fractals.hasEscaped (Can later be converted to map to a specific range)
     - https://wiki.haskell.org/List_comprehension
