@@ -11,7 +11,7 @@ This module will be adjusted in a later version to implement different kind of r
 function convertToStar will change in the upcoming version.
 
 -}
-module Renderer (convertToStar, printMatrix, writeMatrixToFile) where
+module Renderer (printMatrix, writeMatrixToFile) where
 
 -- TODO: (for v2) adjust so it can print values from 0 to 1 (float/double) value to measure how far it escaped
 -- Or something like 0 - 255 to measure the LPP (Light-Per-Pixel) and map out white to black image
