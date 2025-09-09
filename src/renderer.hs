@@ -18,19 +18,32 @@ module Renderer (convertToStar, printMatrix, writeMatrixToFile) where
 
 -- Converts the hard values for 0-1 to another character for rendering
 -- ! Keep in mind that this will have to be adjusted to support a larger range whenever that's implemented
-convertToStar :: Int -> Char
-convertToStar x  
-    | x == 0 = '@'
-    | x == 1 = '.'
-    | otherwise = '?'  -- non-mapped values
 
-printMatrix :: [[Int]] -> IO ()
+-- Character set defining the "density" of the current pixel (Can be dynamically adjusted) Left side = escaped quickly, right side = didn't escape
+charset :: String
+charset = " .:-=+*#%@"
+
+iterationToChar :: Int -> Int -> Char
+iterationToChar iter maxIter =
+    -- Define length of charset
+    let n = length charset
+
+        -- iter * (n - 1) = Scale iteration count to charset
+        -- Using infix `div` to use INTEGER division (prevent floating division)
+        -- Divide by maxiteration to map the current iteration within the charset
+        idx = iter * (n - 1) `div` maxIter
+    in charset !! idx -- charset[idx]
+
 -- Working with monads here? Do some more digging here: https://hoogle.haskell.org/?hoogle=mapM_, need to understand how the function works properly.
-printMatrix = mapM_ (putStrLn . map convertToStar)
+printMatrix :: Int ->[[Int]] -> IO ()
+printMatrix maxIter matrix = mapM_ putStrLn rowStrings
+  where
+    rowStrings = map (map (`iterationToChar` maxIter)) matrix
+
 
 -- Separate to different module?
 -- Function to write the matrix to a file
-writeMatrixToFile :: FilePath -> [[Int]] -> IO ()
-writeMatrixToFile filePath matrix = do
-    let matrixStr = unlines [ map convertToStar row | row <- matrix ]
+writeMatrixToFile :: FilePath -> Int -> [[Int]] -> IO ()
+writeMatrixToFile filePath maxIter matrix = do
+    let matrixStr = unlines [ map (`iterationToChar` maxIter) row | row <- matrix ]
     writeFile filePath matrixStr

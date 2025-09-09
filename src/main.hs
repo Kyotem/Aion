@@ -74,9 +74,11 @@ mainLoop = do
         _ -> error "This should never happen... good job!"
 
     -- TODO: Add choices for different render methods
+    putStrLn "Generating Fractal (This may take some time depending on your selected values)..."
 
     -- Render result
-    printMatrix grid
+    -- printMatrix maxIter grid
+    writeMatrixToFile "C:/Users/Finn/Downloads/output.txt" maxIter grid
 
     -- Continue?
     putStrLn ""

@@ -22,10 +22,12 @@ calcDelta u n_min n_max = (n_max - n_min) / fromIntegral (u - 1)
 -- TODO: Convert to escape-time or escape-iteration checker so we can map values over a range
 -- TODO: Calculate manually to confirm it's working properly (It's giving good results but precision is questionable)
 hasEscaped :: Complex Double -> Complex Double -> Int -> Int
-hasEscaped c z maxIter
-    | magnitude z > 2 = 1  -- Escape condition
-    | maxIter == 0 = 0     -- If we reach max iterations, assume it hasn't escaped
-    | otherwise = hasEscaped c (z*z + c) (maxIter - 1)  -- TODO: I feel like this isn't calculating per the equations i built before, please cross-ref!!!
+hasEscaped c z0 maxIter = iterate z0 0 -- Defining another function inside of this one just for clarity & tracking the iteration
+    where
+        iterate z iter
+            | magnitude z > 2 = iter  -- Escape condition
+            | iter >= maxIter = maxIter     -- If we reach max iterations, assume it hasn't escaped
+            | otherwise = iterate (z*z + c) (iter + 1)  -- TODO: I feel like this isn't calculating per the equations i built before, please cross-ref!!!
 
 -- ! Is there any use in x_min/max etc here if I'm going to scan over a grid regardless? (The generated grid would define steps, etc)
 genComplex :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> Int -> Complex Double
