@@ -12,9 +12,12 @@ prompt :: Read a => String -> IO a
 prompt msg = do
     -- Main message
     putStr msg
-    putStr " "
+    putStrLn " "
+
     -- Flush buffer so I can show the prompt msg on the same line as the input
-    hFlush stdout
+    -- FIXME: Temporarily disabled, causes lag on Laptop, not on Desktop. Hmmmm
+    -- hFlush stdout
+
     -- Get input from user
     line <- getLine
 
@@ -46,10 +49,32 @@ promptFractalChoice = do
             putStrLn "Invalid choice, please enter 0 or 1."
             promptFractalChoice
 
+promptRenderChoice :: IO Int
+promptRenderChoice = do
+
+    -- TODO: ASCII, 
+
+    putStrLn "Select which method you'd like to use to render:"
+    putStrLn "0 -> ASCII Art (Print to console)"
+    putStrLn "1 -> ASCII Art (Save to txt file)"
+    putStrLn "2 -> ASCII Art (Save to .png)"
+    putStrLn "3 -> Grayscale Image (Save as .png)"
+    putStrLn "4 -> Color Image (Save as .png)"
+
+    choice <- prompt "Enter your choice:" :: IO Int
+
+    -- FIXME: Duplicate code, plsfix
+    if choice `elem` [0..4]
+        then return choice -- If matches, return the selected choice
+        else do            -- Else re-prompt
+            putStrLn "Invalid choice, please enter 0, 1, 2, 3 or 4."
+            promptRenderChoice
+
+
 mainLoop :: IO ()
 mainLoop = do
     putStrLn "Welcome to my epic Fractal Generator!"
-    choice <- promptFractalChoice
+    fractalChoice <- promptFractalChoice
 
     -- Grid parameters
     w       <- prompt "Enter width:"      :: IO Int
@@ -61,7 +86,7 @@ mainLoop = do
     maxIter <- prompt "Enter maximum iterations:" :: IO Int
 
     -- C2: Pattern Matching
-    grid <- case choice of
+    grid <- case fractalChoice of
         0 -> do
             -- Mandelbrot
             return $ generateMandelbrot w h x_min x_max y_min y_max maxIter hasEscaped
@@ -74,11 +99,32 @@ mainLoop = do
         _ -> error "This should never happen... good job!"
 
     -- TODO: Add choices for different render methods
-    putStrLn "Generating Fractal (This may take some time depending on your selected values)..."
+
+    renderChoice <- promptRenderChoice
+
+
+    case renderChoice of
+        0 -> do -- ASCII to Console
+            printMatrix maxIter grid
+            putStrLn "Generating Fractal (This may take some time depending on your selected values)..."
+
+        1 -> do -- ASCII to .txt file
+
+            putStrLn "Enter the direct filepath where you want to save the .txt to (Must include filename & extension type)"
+            putStrLn "Example: C:/Users/Admin/Downloads/output.txt"
+            filePath <- getLine
+            putStrLn "Generating Fractal (This may take some time depending on your selected values)..."
+
+
+            -- TODO: Get filepath here
+            writeMatrixToFile filePath maxIter grid
+        -- 2 -> do -- ASCII Art to .png
+        -- 3 -> do -- Grayscale Image as .png file
+        -- 4 -> do -- Color Image as .png file
+        _ -> error "Shouldn't happen. nice"
 
     -- Render result
     -- printMatrix maxIter grid
-    writeMatrixToFile "C:/Users/Finn/Downloads/output.txt" maxIter grid
 
     -- Continue?
     putStrLn ""
