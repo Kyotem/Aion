@@ -60,7 +60,8 @@ library
         Fractals
         Renderer
     build-depends: base ^>=4.18.3.0,
-                   JuicyPixels == 3.3.9
+                   JuicyPixels == 3.3.9,
+                   filepath
     default-language: GHC2021
 
 executable Aion
@@ -78,7 +79,8 @@ executable Aion
 
     -- Other library packages from which modules are imported.
     build-depends:    base ^>=4.18.3.0,
-                      JuicyPixels == 3.3.9
+                      JuicyPixels == 3.3.9,
+                      filepath
 
     -- Directories containing source files.
     hs-source-dirs:   src

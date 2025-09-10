@@ -6,6 +6,11 @@ import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, 
 import Data.Complex (Complex((:+)))
 import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8), Pixel8, PixelRGB8)
 import Codec.Picture.Types (generateImage)
+import Prelude
+import System.Environment (getEnv)
+import System.FilePath ((</>))
+
+-- Method of prompting is a bit messy, especially handling wrong inputs (Some will just stack recursion, not really a realistic problem but could be optimized!)
 
 -- Get user-input(Prompt: x)
 -- a = the type to convert the String to when using read. (e.g., prompt "Enter int: " :: IO Int)
@@ -54,8 +59,6 @@ promptFractalChoice = do
 promptRenderChoice :: IO Int
 promptRenderChoice = do
 
-    -- TODO: ASCII, 
-
     putStrLn "Select which method you'd like to use to render:"
     putStrLn "0 -> ASCII Art (Print to console)"
     putStrLn "1 -> ASCII Art (Save to txt file)"
@@ -70,6 +73,33 @@ promptRenderChoice = do
         else do            -- Else re-prompt
             putStrLn "Invalid choice, please enter 0, 1, 2, 3 or 4."
             promptRenderChoice
+
+
+-- Options for absolute file path or to their downloads folder
+getOutputFilePath :: String -> String -> IO FilePath
+getOutputFilePath defaultName extension = do
+
+    putStrLn "Do you want to specify the full path, or save to your Downloads folder?"
+    putStrLn "0 -> Enter full path"
+    putStrLn "1 -> Save to Downloads folder"
+
+    choice <- prompt "Enter choice (0 or 1):" :: IO Int
+    case choice of -- Full Path
+        0 -> do
+            putStrLn $ "Enter the full path including filename and extension (e.g., C:/Users/Admin/Desktop/" ++ defaultName ++ extension ++ "):"
+            getLine
+
+        1 -> do -- To Downloads folder
+            userProfile <- getEnv "USERPROFILE"  -- Windows
+            let downloads = userProfile </> "Downloads"
+            putStrLn "Enter the filename (without path, extension will be added):"
+            fileName <- getLine
+            return $ downloads </> (fileName ++ extension)
+
+        _ -> do
+            putStrLn "Invalid choice, please enter 0 or 1."
+            getOutputFilePath defaultName extension
+
 
 
 mainLoop :: IO ()
@@ -99,10 +129,7 @@ mainLoop = do
             return $ generateJulia cJulia w h x_min x_max y_min y_max maxIter hasEscaped
         _ -> error "This should never happen... good job!"
 
-    -- TODO: Add choices for different render methods
-
     renderChoice <- promptRenderChoice
-
 
     case renderChoice of
         0 -> do -- ASCII to Console
@@ -110,34 +137,29 @@ mainLoop = do
             putStrLn "Generating Fractal (This may take some time depending on your selected values)..."
 
         1 -> do -- ASCII to .txt file
+            filePath <- getOutputFilePath "output" ".txt"
 
-            putStrLn "Enter the direct filepath where you want to save the .txt to (Must include filename & extension type)"
-            putStrLn "Example: C:/Users/Admin/Downloads/output.txt"
-            filePath <- getLine
+            putStrLn "Generating Fractal..."
+            writeMatrixToFile filePath maxIter grid
+
             putStrLn "Generating Fractal (This may take some time depending on your selected values)..."
 
-
-            -- TODO: Get filepath here
-            writeMatrixToFile filePath maxIter grid
         2 -> do -- Grayscale Image as .png file
-            -- TODO: Add default path (e.g., Downloads)
-            putStrLn "Enter the full filepath for the output PNG (including filename & extension):"
-            filePath <- getLine
-
+            filePath <- getOutputFilePath "output" ".png"
             putStrLn "Generating Grayscale Fractal..."
-            let imgGray = renderMatrixGeneric w h grid (toGrayPixels maxIter) 
 
+            let imgGray = renderMatrixGeneric w h grid (toGrayPixels maxIter)
             savePngImage filePath (ImageY8 imgGray)
+
             putStrLn $ "Saved grayscale fractal to: " ++ filePath
 
         3 -> do -- Color Image as .png file
-            putStrLn "Enter the full filepath for the output PNG (including filename & extension):"
-            filePath <- getLine
-
+            filePath <- getOutputFilePath "output" ".png"
             putStrLn "Generating Colored Fractal..."
-            let imgColor = renderMatrixGeneric w h grid (toColoredPixels maxIter)
 
+            let imgColor = renderMatrixGeneric w h grid (toColoredPixels maxIter)
             savePngImage filePath (ImageRGB8 imgColor)
+
             putStrLn $ "Saved colored fractal to: " ++ filePath
 
         _ -> error "Shouldn't happen. nice"
