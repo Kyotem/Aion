@@ -11,7 +11,7 @@ This module will be adjusted in a later version to implement different kind of r
 function convertToStar will change in the upcoming version.
 
 -}
-module Renderer (printMatrix, writeMatrixToFile, toGrayPixels, renderMatrixGeneric) where
+module Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric) where
 
 import Codec.Picture
 import Codec.Picture.Types (generateImage)
@@ -68,3 +68,16 @@ toGrayPixels :: Int -> Int -> Pixel8
 toGrayPixels maxIter n
     | n == 0    = 255  -- If escaped after first iteration, then just plain white
     | otherwise = 255 - round (255 * fromIntegral n / fromIntegral maxIter) -- Convert iteration (int) to floating point, 255 * 255 = 65025; 65025 / 255 = 255 (Mapping), then round it to the nearest number
+
+-- TODO: Add logarithmic scaling for nicer visuals
+toColoredPixels :: Int -> Int -> PixelRGB8
+toColoredPixels maxIter n
+    | n == 0    = PixelRGB8 255 255 255 -- If instant escape, convert to white
+    | otherwise =
+        let t = fromIntegral n / fromIntegral maxIter -- Convert to floating point :)
+        -- Implemented per: https://en.wikipedia.org/wiki/Polynomial
+            r = round (9*(1-t)*t*t*t * 255) -- Lower N (So more reddish)
+            g = round (15*(1-t)*(1-t)*t*t * 255) -- Middle n (More green)
+            b = round (8.5*(1-t)*(1-t)*(1-t)*t * 255) -- Higher n = (More blue/purple-ish)
+        in PixelRGB8 r g b
+

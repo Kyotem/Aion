@@ -2,9 +2,9 @@ module Main where
 
 import System.IO (hFlush, stdout)
 import Fractals (generateMandelbrot, generateJulia, hasEscaped)
-import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, renderMatrixGeneric)
+import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric)
 import Data.Complex (Complex((:+)))
-import Codec.Picture (savePngImage, DynamicImage(ImageY8), Pixel8,)
+import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8), Pixel8, PixelRGB8)
 import Codec.Picture.Types (generateImage)
 
 -- Get user-input(Prompt: x)
@@ -59,14 +59,13 @@ promptRenderChoice = do
     putStrLn "Select which method you'd like to use to render:"
     putStrLn "0 -> ASCII Art (Print to console)"
     putStrLn "1 -> ASCII Art (Save to txt file)"
-    putStrLn "2 -> ASCII Art (Save to .png)"
-    putStrLn "3 -> Grayscale Image (Save as .png)"
-    putStrLn "4 -> Color Image (Save as .png)"
+    putStrLn "2 -> Grayscale Image (Save as .png)"
+    putStrLn "3 -> Color Image (Save as .png)"
 
     choice <- prompt "Enter your choice:" :: IO Int
 
     -- FIXME: Duplicate code, plsfix
-    if choice `elem` [0..4]
+    if choice `elem` [0..3]
         then return choice -- If matches, return the selected choice
         else do            -- Else re-prompt
             putStrLn "Invalid choice, please enter 0, 1, 2, 3 or 4."
@@ -120,8 +119,7 @@ mainLoop = do
 
             -- TODO: Get filepath here
             writeMatrixToFile filePath maxIter grid
-        -- 2 -> do -- ASCII Art to .png
-        3 -> do -- Grayscale Image as .png file
+        2 -> do -- Grayscale Image as .png file
             -- TODO: Add default path (e.g., Downloads)
             putStrLn "Enter the full filepath for the output PNG (including filename & extension):"
             filePath <- getLine
@@ -132,7 +130,15 @@ mainLoop = do
             savePngImage filePath (ImageY8 imgGray)
             putStrLn $ "Saved grayscale fractal to: " ++ filePath
 
-        -- 4 -> do -- Color Image as .png file
+        3 -> do -- Color Image as .png file
+            putStrLn "Enter the full filepath for the output PNG (including filename & extension):"
+            filePath <- getLine
+
+            putStrLn "Generating Colored Fractal..."
+            let imgColor = renderMatrixGeneric w h grid (toColoredPixels maxIter)
+
+            savePngImage filePath (ImageRGB8 imgColor)
+            putStrLn $ "Saved colored fractal to: " ++ filePath
 
         _ -> error "Shouldn't happen. nice"
 
