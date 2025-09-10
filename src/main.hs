@@ -2,8 +2,10 @@ module Main where
 
 import System.IO (hFlush, stdout)
 import Fractals (generateMandelbrot, generateJulia, hasEscaped)
-import Renderer (writeMatrixToFile, printMatrix)
+import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, renderMatrixGeneric)
 import Data.Complex (Complex((:+)))
+import Codec.Picture (savePngImage, DynamicImage(ImageY8), Pixel8,)
+import Codec.Picture.Types (generateImage)
 
 -- Get user-input(Prompt: x)
 -- a = the type to convert the String to when using read. (e.g., prompt "Enter int: " :: IO Int)
@@ -119,8 +121,19 @@ mainLoop = do
             -- TODO: Get filepath here
             writeMatrixToFile filePath maxIter grid
         -- 2 -> do -- ASCII Art to .png
-        -- 3 -> do -- Grayscale Image as .png file
+        3 -> do -- Grayscale Image as .png file
+            -- TODO: Add default path (e.g., Downloads)
+            putStrLn "Enter the full filepath for the output PNG (including filename & extension):"
+            filePath <- getLine
+
+            putStrLn "Generating Grayscale Fractal..."
+            let imgGray = renderMatrixGeneric w h grid (toGrayPixels maxIter) 
+
+            savePngImage filePath (ImageY8 imgGray)
+            putStrLn $ "Saved grayscale fractal to: " ++ filePath
+
         -- 4 -> do -- Color Image as .png file
+
         _ -> error "Shouldn't happen. nice"
 
     -- Render result

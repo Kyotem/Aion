@@ -11,7 +11,11 @@ This module will be adjusted in a later version to implement different kind of r
 function convertToStar will change in the upcoming version.
 
 -}
-module Renderer (printMatrix, writeMatrixToFile) where
+module Renderer (printMatrix, writeMatrixToFile, toGrayPixels, renderMatrixGeneric) where
+
+import Codec.Picture
+import Codec.Picture.Types (generateImage)
+
 
 -- TODO: (for v2) adjust so it can print values from 0 to 1 (float/double) value to measure how far it escaped
 -- Or something like 0 - 255 to measure the LPP (Light-Per-Pixel) and map out white to black image
@@ -47,3 +51,20 @@ writeMatrixToFile :: FilePath -> Int -> [[Int]] -> IO ()
 writeMatrixToFile filePath maxIter matrix = do
     let matrixStr = unlines [ map (`iterationToChar` maxIter) row | row <- matrix ]
     writeFile filePath matrixStr
+
+-- Grid = type of Pixel p with elements of a (Convert a to pixel elements) and return image
+renderMatrixGeneric :: Int -> Int -> Pixel p => [[a]] -> (a -> p) -> Image p
+-- W, H, 
+renderMatrixGeneric width height matrix f =
+    --matrix !! y (Select y-th row)
+    -- (matrix 11 y) !! x select the x-th element of the row
+    -- f ((matrix !! y) !!x) convert the element value per the given func
+    -- Lambda function indicates what to do with each respective pixel (Which is using the function @ f to convert to the correct pixel type)
+    generateImage (\x y -> f ((matrix !! y) !! x)) width height
+
+-- TODO: Add logarithmic scaling for nicer visuals
+-- Pixel8 / Word8 (8-bit Grayscale value) -> (0-255)
+toGrayPixels :: Int -> Int -> Pixel8
+toGrayPixels maxIter n
+    | n == 0    = 255  -- If escaped after first iteration, then just plain white
+    | otherwise = 255 - round (255 * fromIntegral n / fromIntegral maxIter) -- Convert iteration (int) to floating point, 255 * 255 = 65025; 65025 / 255 = 255 (Mapping), then round it to the nearest number
