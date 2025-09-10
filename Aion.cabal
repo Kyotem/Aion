@@ -59,7 +59,8 @@ library
     exposed-modules:
         Fractals
         Renderer
-    build-depends: base ^>=4.18.3.0
+    build-depends: base ^>=4.18.3.0,
+                   JuicyPixels == 3.3.9
     default-language: GHC2021
 
 executable Aion
@@ -84,3 +85,4 @@ executable Aion
 
     -- Base language which the package is written in.
     default-language: GHC2021
+    other-modules: Fractals, Renderer
