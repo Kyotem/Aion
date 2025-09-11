@@ -164,9 +164,6 @@ mainLoop = do
 
         _ -> error "Shouldn't happen. nice"
 
-    -- Render result
-    -- printMatrix maxIter grid
-
     -- Continue?
     putStrLn ""
     putStrLn "What do you want to do next?"
