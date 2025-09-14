@@ -13,21 +13,23 @@
 
     -}
     module Fractals (hasEscaped, calcDelta, genComplex, generateMandelbrot, generateJulia) where
-    import Data.Complex (Complex((:+)), magnitude)
+    import Data.Complex (Complex((:+)), realPart, imagPart)
 
     calcDelta :: Int -> Double -> Double -> Double
     calcDelta u n_min n_max = (n_max - n_min) / fromIntegral (u - 1)
 
     -- Function to check if the point has escaped or not (Mandlebrot or Julia)
     -- TODO: Calculate manually to confirm it's working properly (It's giving good results but precision is questionable)
-    -- Performance gain can be attained by comparing (realC z^2 + imagC z^2 > 4) as currently it does sqrt (x^2+y^2) (Magnitude)
     hasEscaped :: Complex Double -> Complex Double -> Int -> Int
     hasEscaped c z0 maxIter = step z0 0 -- Defining another function inside of this one just for clarity & tracking the iteration
         where
-            step z iter
-                | magnitude z > 2 = iter  -- Escape condition
+            step (x :+ y) iter
+                | x*x + y*y > 4 = iter  -- Escape condition
                 | iter >= maxIter = maxIter     -- If we reach max iterations, assume it hasn't escaped
-                | otherwise = step (z*z + c) (iter + 1)  -- TODO: I feel like this isn't calculating per the equations i built before, please cross-ref!!!
+                | otherwise = 
+                    let nextX = x*x - y*y + realPart c
+                        nextY = 2*x*y + imagPart c
+                    in step (nextX :+ nextY) (iter + 1)
 
     -- ! Is there any use in x_min/max etc here if I'm going to scan over a grid regardless? (The generated grid would define steps, etc)
     genComplex :: Double -> Double -> Double -> Double -> Int -> Int -> Complex Double
