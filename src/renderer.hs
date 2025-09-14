@@ -6,9 +6,11 @@ License     : BSD-3-Clause
 Maintainer  : FB.Panhuijsen@student.han.nl
 Stability   : experimental
 
-Last Edited: 2025-09-08
+Last Edited: 2025-09-14
 This module will be adjusted in a later version to implement different kind of rendering methods.
 function convertToStar will change in the upcoming version.
+
+! - Rendering isn't done in an efficient manner (Can be done parallel or per vectors), I'm not improving this anymore, though to match with Fractals.hs it might be worth to update later down the line. 
 
 -}
 module Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric) where
