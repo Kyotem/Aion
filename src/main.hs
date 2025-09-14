@@ -1,16 +1,15 @@
 module Main where
 
-import System.IO (hFlush, stdout)
 import Fractals (generateMandelbrot, generateJulia, hasEscaped)
 import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric)
 import Data.Complex (Complex((:+)))
-import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8), Pixel8, PixelRGB8)
-import Codec.Picture.Types (generateImage)
+import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8),)
 import Prelude
 import System.Environment (getEnv)
 import System.FilePath ((</>))
 
 -- Method of prompting is a bit messy, especially handling wrong inputs (Some will just stack recursion, not really a realistic problem but could be optimized!)
+-- For some reason loading the program in a terminal on my Win11 Laptop can sometimes be laggy (input-wise, not calc-wise), but works fine on Win10 CMD... not sure why, ehh
 
 -- Get user-input(Prompt: x)
 -- a = the type to convert the String to when using read. (e.g., prompt "Enter int: " :: IO Int)
@@ -20,10 +19,6 @@ prompt msg = do
     -- Main message
     putStr msg
     putStrLn " "
-
-    -- Flush buffer so I can show the prompt msg on the same line as the input
-    -- FIXME: Temporarily disabled, causes lag on Laptop, not on Desktop. Hmmmm
-    -- hFlush stdout
 
     -- Get input from user
     line <- getLine

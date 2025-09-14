@@ -16,8 +16,6 @@ function convertToStar will change in the upcoming version.
 module Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric) where
 
 import Codec.Picture
-import Codec.Picture.Types (generateImage)
-
 
 -- TODO: (for v2) adjust so it can print values from 0 to 1 (float/double) value to measure how far it escaped
 -- Or something like 0 - 255 to measure the LPP (Light-Per-Pixel) and map out white to black image
@@ -71,14 +69,16 @@ toGrayPixels :: Int -> Int -> Pixel8
 toGrayPixels maxIter n
     | n == 0    = 255  -- If escaped after first iteration, then just plain white
     | otherwise = 
-        let t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1)   -- Convert iteration (int) to floating point; (lox(n+1) / log(maxIter+1)) -> Map range 0-1
+        let t :: Double
+            t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1)   -- Convert iteration (int) to floating point; (lox(n+1) / log(maxIter+1)) -> Map range 0-1
         in 255 - round (255 * t) -- 255 * 255 = 65025; 65025 / 255 = 255 (Mapping), then round it to the nearest number
     
 toColoredPixels :: Int -> Int -> PixelRGB8
 toColoredPixels maxIter n
     | n == 0    = PixelRGB8 255 255 255 -- If instant escape, convert to white
     | otherwise =
-        let t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1) -- Convert iteration (int) to floating point; (lox(n+1) / log(maxIter+1)) -> Map range 0-1
+        let t :: Double
+            t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1) -- Convert iteration (int) to floating point; (lox(n+1) / log(maxIter+1)) -> Map range 0-1
         -- Implemented per: https://en.wikipedia.org/wiki/Polynomial
             r = round (9*(1-t)*t*t*t * 255) -- Lower n (So more reddish)
             g = round (15*(1-t)*(1-t)*t*t * 255) -- Middle n (More green)
