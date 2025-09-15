@@ -5,7 +5,9 @@
 
 Aion is a Haskell application designed to calculate and render simple Mandlebrot- and Julia set fractals.
 
-TODO: Images
+![Mandelbrot Set Example](examples/0[-2;2][-2;2]1000.png)
+![Julia Set Example](examples/1[-2;2][-2;2]1000[-0.8;0.156].png)
+![Julia Set Example](examples/1[-2;2][-2;2]1000[0.285;0.01].png)
 
 ## Functionality:
 
@@ -31,7 +33,7 @@ Available Render methods:
 3. Resolve the dependencies: `cabal update`
 4. Build the executable: `cabal build`
 
-Once cabal has finished building the application, you can find the executable here (From the main directory): `./dist-newstyle/build/x86_64-windows/ghc-9.6.7/Aion-0.1.0.0/x/Aion/build/Aion.exe`
+Once cabal has finished building the application, you can find the executable here (From the main directory): `./dist-newstyle/build/x86_64-windows/ghc-9.6.7/Aion-0.1.0.0/x/Aion/build/Aion/Aion.exe`
 
 
 ## Dependencies:
