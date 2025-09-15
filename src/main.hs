@@ -42,12 +42,12 @@ prompt msg = do
     case reads line of -- Try parse 'line' into value of 'a' (Read instance)
         [(val, "")] -> return val -- If parse = OK, 'val' = parsed value
                                   -- 
-        _ -> do -- If parse = NOT OK, _ == wildcard (*)
+        _ -> do -- Default
             putStrLn "Invalid input, please try again."
             prompt msg -- Recursive call to retry (Can this be optimized? Let's not get it wrong too many times!)
 
 
--- Prompt until we get 0 or 1
+-- Prompt which fractal the user wants to generate
 promptFractalChoice :: IO Int
 promptFractalChoice = do
 
@@ -66,6 +66,7 @@ promptFractalChoice = do
             putStrLn "Invalid choice, please enter 0 or 1."
             promptFractalChoice
 
+-- Prompt which render method the user wants to use
 promptRenderChoice :: IO Int
 promptRenderChoice = do
 
@@ -84,8 +85,7 @@ promptRenderChoice = do
             putStrLn "Invalid choice, please enter 0, 1, 2, 3 or 4."
             promptRenderChoice
 
-
--- Options for absolute file path or to their downloads folder
+-- Prompts user to choose if they want to save to their downloads folder or with an absolute path
 getOutputFilePath :: String -> String -> IO FilePath
 getOutputFilePath defaultName extension = do
 
@@ -106,7 +106,7 @@ getOutputFilePath defaultName extension = do
             fileName <- getLine
             return $ downloads </> (fileName ++ extension)
 
-        _ -> do
+        _ -> do -- Default
             putStrLn "Invalid choice, please enter 0 or 1."
             getOutputFilePath defaultName extension
 
@@ -172,7 +172,7 @@ mainLoop = do
 
             putStrLn $ "Saved colored fractal to: " ++ filePath
 
-        _ -> error "Shouldn't happen. nice"
+        _ -> error "Shouldn't happen. nice" -- Default
 
     -- Continue?
     putStrLn ""
@@ -184,6 +184,6 @@ mainLoop = do
         then mainLoop   -- recursion (restart menu) -> Not really efficient if you want to render lots of diff ones.... right?
         else putStrLn "Goodbye!"
 
--- entry
+-- entrypoint
 main :: IO ()
 main = mainLoop

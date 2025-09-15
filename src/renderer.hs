@@ -32,8 +32,7 @@ iterationToChar iter maxIter =
     -- Define length of charset
     let n = length charset
         -- iter * (n - 1) = Scale iteration count to charset
-        -- Using infix `div` to use INTEGER division (prevent floating division)
-        -- TODO: Why am I using div again?
+        -- Using infix `div` to use INTEGER division (prevent floating division) so I can return an Int and not have to remap. (Technically losing some 'precision' with this)
         -- Divide by maxiteration to map the current iteration within the charset
         idx = iter * (n - 1) `div` maxIter
     in charset !! idx -- charset[idx]
