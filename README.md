@@ -26,13 +26,19 @@ Available Render methods:
 
 ## How to compile
 
-Go into the main directory:
+1. Clone the project to any directory using: `git clone https://github.com/Kyotem/Aion.git`
+2. Open a terminal in the main directory of this project
+3. Resolve the dependencies: `cabal update`
+4. Build the executable: `cabal build`
 
-`cabal build` to build the executable
+Once cabal has finished building the application, you can find the executable here (From the main directory): `./dist-newstyle/build/x86_64-windows/ghc-9.6.7/Aion-0.1.0.0/x/Aion/build/Aion.exe`
 
 
 ## Dependencies:
-(TODO: List from the cabal file)
+(Based upon the Aion.cabal file)
+- JuicyPixels 3.3.9
+- filepath
+- parallel
 
 ## Authors
 
