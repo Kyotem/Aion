@@ -6,53 +6,75 @@ License     : BSD-3-Clause
 Maintainer  : FB.Panhuijsen@student.han.nl
 Stability   : experimental
 
-Last Edited: 2025-09-14
-This module will be adjusted in a later version to implement different kind of rendering methods.
-function convertToStar will change in the upcoming version.
+Last Edited: 2025-09-15
 
 ! - Rendering isn't done in an efficient manner (Can be done parallel or per vectors), I'm not improving this anymore, though to match with Fractals.hs it might be worth to update later down the line. 
-
 -}
 module Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric) where
 
+-- External Modules
 import Codec.Picture
 
--- TODO: (for v2) adjust so it can print values from 0 to 1 (float/double) value to measure how far it escaped
--- Or something like 0 - 255 to measure the LPP (Light-Per-Pixel) and map out white to black image
-
--- Converts the hard values for 0-1 to another character for rendering
--- ! Keep in mind that this will have to be adjusted to support a larger range whenever that's implemented
 
 -- Character set defining the "density" of the current pixel (Can be dynamically adjusted) Left side = escaped quickly, right side = didn't escape
 charset :: String
 charset = " .:-=+*#%@"
 
+{- 
+Converts an escape-value (after how many iterations a pixel escaped) to an ASCII character based on charset.
+
+Takes:
+iter = At which iteration a pixel escaped
+maxIter = max number of iterations used in hasEscaped
+-}
 iterationToChar :: Int -> Int -> Char
 iterationToChar iter maxIter =
     -- Define length of charset
     let n = length charset
-
         -- iter * (n - 1) = Scale iteration count to charset
         -- Using infix `div` to use INTEGER division (prevent floating division)
+        -- TODO: Why am I using div again?
         -- Divide by maxiteration to map the current iteration within the charset
         idx = iter * (n - 1) `div` maxIter
     in charset !! idx -- charset[idx]
 
--- Working with monads here? Do some more digging here: https://hoogle.haskell.org/?hoogle=mapM_, need to understand how the function works properly.
+
+-- TODO: Working with monads here? Do some more digging here: https://hoogle.haskell.org/?hoogle=mapM_, need to understand how the function works properly.
+{- 
+Function used to convert the matrix of escape pixels to ASCII characters and print them directly to the console
+
+Takes:
+maxIter = max number of iterations used in hasEscaped
+matrix = A matrix containing per pixel at which iteration it escaped to infinity
+-}
 printMatrix :: Int ->[[Int]] -> IO ()
 printMatrix maxIter matrix = mapM_ putStrLn rowStrings
   where
     rowStrings = map (map (`iterationToChar` maxIter)) matrix
 
+{- 
+Function used to convert the matrix of escape pixels to ASCII characters and save them to a file. (.txt)
 
--- Separate to different module?
--- Function to write the matrix to a file
+Takes:
+filePath = absolute filepath to place the file
+maxIter = max number of iterations used in hasEscaped
+matrix = A matrix containing per pixel at which iteration it escaped to infinity
+-}
 writeMatrixToFile :: FilePath -> Int -> [[Int]] -> IO ()
 writeMatrixToFile filePath maxIter matrix = do
     let matrixStr = unlines [ map (`iterationToChar` maxIter) row | row <- matrix ]
     writeFile filePath matrixStr
 
 -- Grid = type of Pixel p with elements of a (Convert a to pixel elements) and return image
+{- 
+Generic function used to convert the matrix of escaped values to a matrix of pixel-values (grayscale, colored, etc) 
+
+Takes:
+width = width of the matrix
+height = height of the matrix
+matrix = matrix containing escaped values
+f = function used to render the matrix with (e.g., toGrayPixels, toColoredPixels)
+-}
 renderMatrixGeneric :: Int -> Int -> Pixel p => [[a]] -> (a -> p) -> Image p
 -- W, H, 
 renderMatrixGeneric width height matrix f =
@@ -64,7 +86,14 @@ renderMatrixGeneric width height matrix f =
 
 -- Using logarithmic scaling, this way the lower iteration counts get stretched out more (Giving more detail there), whilst compressing higher iteration counts (Which usually don't need a lot of detail. -> Would rather see a greater diff between 1, 20 and 50 than 250 200 and 180
 
--- Pixel8 / Word8 (8-bit Grayscale value) -> (0-255)
+{-
+Converts an escape value to a gray-scale (Pixel8) value
+Pixel8 / Word8 (8-bit Grayscale value) -> (0-255)
+
+takes:
+maxIter = max number of iterations used in hasEscaped
+n = the escape value to compare to
+-}
 toGrayPixels :: Int -> Int -> Pixel8
 toGrayPixels maxIter n
     | n == 0    = 255  -- If escaped after first iteration, then just plain white
@@ -72,7 +101,14 @@ toGrayPixels maxIter n
         let t :: Double
             t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1)   -- Convert iteration (int) to floating point; (lox(n+1) / log(maxIter+1)) -> Map range 0-1
         in 255 - round (255 * t) -- 255 * 255 = 65025; 65025 / 255 = 255 (Mapping), then round it to the nearest number
-    
+
+{-
+Converts an escape value to a colored (PixelRGB8) value
+
+takes:
+maxIter = max number of iterations used in hasEscaped
+n = the escape value to compare to
+-}}    
 toColoredPixels :: Int -> Int -> PixelRGB8
 toColoredPixels maxIter n
     | n == 0    = PixelRGB8 255 255 255 -- If instant escape, convert to white

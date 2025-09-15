@@ -6,21 +6,36 @@
     Maintainer  : FB.Panhuijsen@student.han.nl
     Stability   : experimental
 
-    Last Edited: 2025-09-14
-    Module has to be adjusted for:
-    - Optimization
-    - Less duplicate code
-
+    Last Edited: 2025-09-15
     -}
     module Fractals (hasEscaped, calcDelta, genComplex, generateMandelbrot, generateJulia) where
+    
+    -- Local modules
     import Data.Complex (Complex((:+)), realPart, imagPart)
     import Control.Parallel.Strategies (parMap, rdeepseq) -- I'm using rdeepseq to make sure it's fully evaluated before moving on
 
+    {-
+    Function used to calculate the step size between each pixel. (Calculate separately between x and y if the resolution isn't 1:1)
+    So if we have an x-y axis of x(-1;1) and y(-1,5;1), we can calculate the step size of x and y for each pixel. 
+    Takes:
+    n = width or height
+    n_min = min value of the x- or y-axis
+    n_max = max value of the x- or y-axis
+    -}
     calcDelta :: Int -> Double -> Double -> Double
     calcDelta u n_min n_max = (n_max - n_min) / fromIntegral (u - 1)
 
-    -- Function to check if the point has escaped or not (Mandlebrot or Julia)
-    -- TODO: Calculate manually to confirm it's working properly (It's giving good results but precision is questionable)
+
+    {- 
+    Recursive function used to calculate if a certain pixel has escaped into infinity or has been contained after a set of iteration. (Can be used for both Mandelbrot & Julia sets)
+    
+
+    z_{n+1} = z_n^2 + c
+    Takes:
+    c = The constant c (Must be a complex number)
+    z0 = The starting value of z
+    maxIter = The max amount of iterations to check if z escapes into infinity
+    -}
     hasEscaped :: Complex Double -> Complex Double -> Int -> Int
     hasEscaped c z0 maxIter = step z0 0 -- Defining another function inside of this one just for clarity & tracking the iteration
         where
@@ -45,8 +60,8 @@
     generateMandelbrot :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
     generateMandelbrot  w h x_min x_max y_min y_max maxIter f =
         let
-            dx = (x_max - x_min) / fromIntegral (w - 1)
-            dy = (y_max - y_min) / fromIntegral (h - 1)
+            dx = calcDelta w x_min x_max
+            dy = calcDelta h y_min y_max
 
             row py = [ f (genComplex x_min y_max dx dy px py) 0 maxIter | px <- [0..w-1] ] -- Computes one row left to right
         in 
@@ -56,8 +71,8 @@
     generateJulia :: Complex Double -> Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
     generateJulia c w h x_min x_max y_min y_max maxIter f =
         let
-            dx = (x_max - x_min) / fromIntegral (w - 1)
-            dy = (y_max - y_min) / fromIntegral (h - 1)
+            dx = calcDelta w x_min x_max
+            dy = calcDelta h y_min y_max
             gen = genComplex x_min y_max dx dy
 
             row py = [ f c (gen px py) maxIter | px <- [0..w-1] ]

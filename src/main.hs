@@ -1,12 +1,27 @@
+    {-|
+    Module      : MAIN (AION) - Input Handler
+    Description : Used to handle the IO operations for AION, interfacing with the Fractal calculator & renderer
+    Copyright   : (c) Finn Panhuijsen, 2025
+    License     : BSD-3-Clause
+    Maintainer  : FB.Panhuijsen@student.han.nl
+    Stability   : experimental
+
+    Last Edited: 2025-09-15
+    -}
 module Main where
 
+-- Own modules
 import Fractals (generateMandelbrot, generateJulia, hasEscaped)
 import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric)
+
+-- Local modules
 import Data.Complex (Complex((:+)))
-import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8),)
 import Prelude
 import System.Environment (getEnv)
 import System.FilePath ((</>))
+
+-- External modules
+import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8),)
 
 -- Method of prompting is a bit messy, especially handling wrong inputs (Some will just stack recursion, not really a realistic problem but could be optimized!)
 -- For some reason loading the program in a terminal on my Win11 Laptop can sometimes be laggy (input-wise, not calc-wise), but works fine on Win10 CMD... not sure why, ehh
