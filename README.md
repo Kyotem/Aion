@@ -34,7 +34,7 @@ Aion is a Haskell application designed to calculate and render simple Mandelbrot
 
 After building, the executable can be found at: `./dist-newstyle/build/x86_64-windows/ghc-9.6.7/Aion-0.1.0.0/x/Aion/build/Aion/Aion.exe`
 
-Load this `.exe`via a terminal or powershell window to use the program.
+Open the `Aion.exe` directly or load it via a terminal, both will work just fine.
 
 ## Dependencies:
 (Based upon the Aion.cabal file)

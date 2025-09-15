@@ -75,13 +75,12 @@ matrix = matrix containing escaped values
 f = function used to render the matrix with (e.g., toGrayPixels, toColoredPixels)
 -}
 renderMatrixGeneric :: Int -> Int -> Pixel p => [[a]] -> (a -> p) -> Image p
--- W, H, 
 renderMatrixGeneric width height matrix f =
-    --matrix !! y (Select y-th row)
+    -- matrix !! y (Select y-th row)
     -- (matrix 11 y) !! x select the x-th element of the row
     -- f ((matrix !! y) !!x) convert the element value per the given func
     -- Lambda function indicates what to do with each respective pixel (Which is using the function @ f to convert to the correct pixel type)
-    generateImage (\x y -> f ((matrix !! y) !! x)) width height
+    generateImage (\x y -> f ((matrix !! y) !! x)) width height 
 
 -- Using logarithmic scaling, this way the lower iteration counts get stretched out more (Giving more detail there), whilst compressing higher iteration counts (Which usually don't need a lot of detail. -> Would rather see a greater diff between 1, 20 and 50 than 250 200 and 180
 
@@ -107,7 +106,7 @@ Converts an escape value to a colored (PixelRGB8) value
 takes:
 maxIter = max number of iterations used in hasEscaped
 n = the escape value to compare to
--}}    
+-}
 toColoredPixels :: Int -> Int -> PixelRGB8
 toColoredPixels maxIter n
     | n == 0    = PixelRGB8 255 255 255 -- If instant escape, convert to white

@@ -1,27 +1,12 @@
-    {-|
-    Module      : MAIN (AION) - Input Handler
-    Description : Used to handle the IO operations for AION, interfacing with the Fractal calculator & renderer
-    Copyright   : (c) Finn Panhuijsen, 2025
-    License     : BSD-3-Clause
-    Maintainer  : FB.Panhuijsen@student.han.nl
-    Stability   : experimental
-
-    Last Edited: 2025-09-15
-    -}
 module Main where
 
--- Own modules
 import Fractals (generateMandelbrot, generateJulia, hasEscaped)
 import Renderer (printMatrix, writeMatrixToFile, toGrayPixels, toColoredPixels, renderMatrixGeneric)
-
--- Local modules
 import Data.Complex (Complex((:+)))
+import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8),)
 import Prelude
 import System.Environment (getEnv)
 import System.FilePath ((</>))
-
--- External modules
-import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8),)
 
 -- Method of prompting is a bit messy, especially handling wrong inputs (Some will just stack recursion, not really a realistic problem but could be optimized!)
 -- For some reason loading the program in a terminal on my Win11 Laptop can sometimes be laggy (input-wise, not calc-wise), but works fine on Win10 CMD... not sure why, ehh
@@ -31,7 +16,7 @@ import Codec.Picture (savePngImage, DynamicImage(ImageY8, ImageRGB8),)
 -- ! Look a bit more into this! (Applying typeclass constraint, Polymorphism AND Monads), easy to use in this case, documentation might need a deeper dive for other applications / optimizations
 prompt :: Read a => String -> IO a
 prompt msg = do
-    -- Main message
+    -- Main message 
     putStr msg
     putStrLn " "
 
@@ -41,13 +26,13 @@ prompt msg = do
     -- C2: Pattern Matching (Top to bottom)
     case reads line of -- Try parse 'line' into value of 'a' (Read instance)
         [(val, "")] -> return val -- If parse = OK, 'val' = parsed value
-                                  -- 
-        _ -> do -- Default
+                                  
+        _ -> do -- If parse = NOT OK, _ == wildcard (*)
             putStrLn "Invalid input, please try again."
             prompt msg -- Recursive call to retry (Can this be optimized? Let's not get it wrong too many times!)
 
 
--- Prompt which fractal the user wants to generate
+-- Prompt until we get 0 or 1
 promptFractalChoice :: IO Int
 promptFractalChoice = do
 
@@ -66,7 +51,6 @@ promptFractalChoice = do
             putStrLn "Invalid choice, please enter 0 or 1."
             promptFractalChoice
 
--- Prompt which render method the user wants to use
 promptRenderChoice :: IO Int
 promptRenderChoice = do
 
@@ -85,7 +69,8 @@ promptRenderChoice = do
             putStrLn "Invalid choice, please enter 0, 1, 2, 3 or 4."
             promptRenderChoice
 
--- Prompts user to choose if they want to save to their downloads folder or with an absolute path
+
+-- Options for absolute file path or to their downloads folder
 getOutputFilePath :: String -> String -> IO FilePath
 getOutputFilePath defaultName extension = do
 
@@ -106,7 +91,7 @@ getOutputFilePath defaultName extension = do
             fileName <- getLine
             return $ downloads </> (fileName ++ extension)
 
-        _ -> do -- Default
+        _ -> do
             putStrLn "Invalid choice, please enter 0 or 1."
             getOutputFilePath defaultName extension
 
@@ -172,7 +157,7 @@ mainLoop = do
 
             putStrLn $ "Saved colored fractal to: " ++ filePath
 
-        _ -> error "Shouldn't happen. nice" -- Default
+        _ -> error "Shouldn't happen. nice"
 
     -- Continue?
     putStrLn ""
@@ -184,6 +169,6 @@ mainLoop = do
         then mainLoop   -- recursion (restart menu) -> Not really efficient if you want to render lots of diff ones.... right?
         else putStrLn "Goodbye!"
 
--- entrypoint
+-- entry
 main :: IO ()
 main = mainLoop
