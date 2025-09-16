@@ -66,8 +66,21 @@
     -- Using fromIntegral for conversion: https://wiki.haskell.org/Converting_numbers
     -- TODO: Resolve issues when inputting the parameters (Negative numbers can be seen as numeric litearls whilst it is expecting a double)
 
-    -- Generate the grid of escape values
-    -- OPT: Maybe precompute an array of delta values first?
+    {- 
+    Generates a matrix based on pixel-size & axis-size, inserts per pixel the value returned by argument f
+    (Specifically for Mandelbrot sets)
+    ! In parallel per row
+
+    Takes:
+    w = image width
+    h = image height
+    x_min = x_min of the x-axis
+    x_max = x_min of the x-axis
+    y_min = y_min of the y-axis
+    y_max = y_min of the y-axis
+    maxIter = max number of iterations used in hasEscaped
+    f = function to calculate if a pixel escapes into infinity (Current: hasEscaped)
+    -}
     generateMandelbrot :: Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
     generateMandelbrot  w h x_min x_max y_min y_max maxIter f =
         let
@@ -79,9 +92,25 @@
             parMap rdeepseq row [0..h-1] -- Splits each row between cores to compute paralell (so using row py)
 
     -- I know this is pretty much duplicated code, not plans to scale further so I'm keeping this like so. Sorry.
+    {-
+    Generates a matrix based on pixel-size & axis-size, inserts per pixel the value returned by argument f
+    (Specifically for Julia sets)
+    ! In parallel per row
+    
+    Takes:
+    c = complex c used for Julia Sets 
+    w = image width
+    h = image height
+    x_min = x_min of the x-axis
+    x_max = x_min of the x-axis
+    y_min = y_min of the y-axis
+    y_max = y_min of the y-axis
+    maxIter = max number of iterations used in hasEscaped
+    f = function to calculate if a pixel escapes into infinity (Current: hasEscaped)
+    -}
     generateJulia :: Complex Double -> Int -> Int -> Double -> Double -> Double -> Double -> Int -> (Complex Double -> Complex Double -> Int -> Int) -> [[Int]]
     generateJulia c w h x_min x_max y_min y_max maxIter f =
-        let
+        let -- Probably losing a decent bit of performance by calling different functions instead of calculating it directly...
             dx = calcDelta w x_min x_max
             dy = calcDelta h y_min y_max
             gen = genComplex x_min y_max dx dy
@@ -89,17 +118,6 @@
             row py = [ f c (gen px py) maxIter | px <- [0..w-1] ]
         in
             parMap rdeepseq row [0..h-1]
-    {-
-        f == Fractals.hasEscaped (Can later be converted to map to a specific range)
-        - https://wiki.haskell.org/List_comprehension
-        - https://www.youtube.com/watch?v=dYKQSWtJv-w
 
-        px <- [0..w-1] (Inner list)
-        py <- [0..h-1] (Outer list)
 
-        0..w-1 = the range (Start at 0 until w - 1)
-        
-        Left side expression uses the function and generates the value to put INTO the list at that position
-        Left side expression uses px and py generated on the right side of the expression in the list comprehension
-    -}
 
