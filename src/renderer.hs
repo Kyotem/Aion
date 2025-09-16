@@ -30,11 +30,12 @@ maxIter = max number of iterations used in hasEscaped
 iterationToChar :: Int -> Int -> Char
 iterationToChar iter maxIter =
     -- Define length of charset
-    let n = length charset
+    let n = length charset -- Define temp variables
         -- iter * (n - 1) = Scale iteration count to charset
         -- Using infix `div` to use INTEGER division (prevent floating division) so I can return an Int and not have to remap. (Technically losing some 'precision' with this)
         -- Divide by maxiteration to map the current iteration within the charset
         idx = iter * (n - 1) `div` maxIter
+    -- In indicates where the temp variables are used
     in charset !! idx -- charset[idx]
 
 
@@ -49,6 +50,7 @@ matrix = A matrix containing per pixel at which iteration it escaped to infinity
 printMatrix :: Int ->[[Int]] -> IO ()
 printMatrix maxIter matrix = mapM_ putStrLn rowStrings
   where
+    -- Maps the current matrix of escape value converts to characters
     rowStrings = map (map (`iterationToChar` maxIter)) matrix
 
 {- 
@@ -61,7 +63,10 @@ matrix = A matrix containing per pixel at which iteration it escaped to infinity
 -}
 writeMatrixToFile :: FilePath -> Int -> [[Int]] -> IO ()
 writeMatrixToFile filePath maxIter matrix = do
+
+    -- Unlines = takes the array of strings, and creates one big string from all of them.`
     let matrixStr = unlines [ map (`iterationToChar` maxIter) row | row <- matrix ]
+
     writeFile filePath matrixStr
 
 -- Grid = type of Pixel p with elements of a (Convert a to pixel elements) and return image
@@ -112,7 +117,7 @@ toColoredPixels maxIter n
     | n == 0    = PixelRGB8 255 255 255 -- If instant escape, convert to white
     | otherwise =
         let t :: Double
-            t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1) -- Convert iteration (int) to floating point; (lox(n+1) / log(maxIter+1)) -> Map range 0-1
+            t = logBase (fromIntegral maxIter + 1) (fromIntegral n + 1) -- Convert iteration (int) to floating point; (log(n+1) / log(maxIter+1)) -> Map range 0-1
         -- Implemented per: https://en.wikipedia.org/wiki/Polynomial
             r = round (9*(1-t)*t*t*t * 255) -- Lower n (So more reddish)
             g = round (15*(1-t)*(1-t)*t*t * 255) -- Middle n (More green)

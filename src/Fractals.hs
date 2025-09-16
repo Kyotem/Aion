@@ -39,7 +39,7 @@
     hasEscaped :: Complex Double -> Complex Double -> Int -> Int
     hasEscaped c z0 maxIter = step z0 0 -- Defining another function inside of this one just for clarity & tracking the iteration
         where
-            step (x :+ y) iter -- L1
+            step (x :+ y) iter
                 | x*x + y*y > 4 = iter  -- Escape condition
                 | iter >= maxIter = maxIter     -- If we reach max iterations, assume it hasn't escaped
                 | otherwise = -- Recurse again and calculate new parts
