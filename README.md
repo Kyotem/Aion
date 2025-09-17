@@ -21,9 +21,11 @@ Aion is a Haskell application designed to calculate and render simple Mandelbrot
 3. Save as a grayscale image
 4. Save as a colored image
 
-## How to use
-1. Load the .exe in a Terminal or Powershell window
-2. Follow the steps provided by the application
+## Dependencies:
+(Based on the [Aion.cabal](./Aion.cabal) file)
+- JuicyPixels 3.3.9
+- filepath
+- parallel
 
 ## How to compile
 
@@ -36,11 +38,9 @@ After building, the executable can be found at: `./dist-newstyle/build/x86_64-wi
 
 Open the `Aion.exe` directly or load it via a terminal, both will work just fine.
 
-## Dependencies:
-(Based upon the Aion.cabal file)
-- JuicyPixels 3.3.9
-- filepath
-- parallel
+## How to use
+1. Load the .exe in a Terminal or Powershell window
+2. Follow the steps provided by the application
 
 ## Authors
 
