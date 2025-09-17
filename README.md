@@ -39,8 +39,9 @@ After building, the executable can be found at: `./dist-newstyle/build/x86_64-wi
 Open the `Aion.exe` directly or load it via a terminal, both will work just fine.
 
 ## How to use
-1. Load the .exe in a Terminal or Powershell window
-2. Follow the steps provided by the application
+1. Choose to compile the binary directly by using the steps mentioned in the previous chapter, or download the latest binary from the [Releases Section](https://github.com/Kyotem/Aion/releases)
+2. Load the .exe in a Terminal or Powershell window
+3. Follow the steps provided by the application
 
 ## Authors
 
